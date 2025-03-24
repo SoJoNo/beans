@@ -16,7 +16,7 @@ require 'httparty'
 CoffeeShop.destroy_all
 
 # Source 1: Kaggle CSV
-csv_text = File.read(Rails.root.join('db', 'starbucks_locations.csv'))
+csv_text = File.read(Rails.root.join('db', 'directory.csv'))
 csv = CSV.parse(csv_text, headers: true)
 csv.each do |row|
   CoffeeShop.create!(
