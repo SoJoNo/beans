@@ -1,24 +1,35 @@
-# README
+# Beans ☕ - The Coffee Explorer App
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+![App Screenshot](app/assets/images/screenshot.png) *(optional: add actual screenshot later)*
 
-Things you may want to cover:
+## **About The Project**
+Beans is a Ruby on Rails application that helps coffee enthusiasts discover coffee shops and premium coffee products worldwide. It combines:
+- Starbucks location data
+- Professional coffee reviews
+- User-generated ratings
 
-* Ruby version
+## **Features**
+- 🗺️ Interactive map of coffee shops
+- 📊 Professional coffee bean ratings
+- 🔍 Advanced search and filtering
+- 🌟 User review system
+- 📱 Responsive Bootstrap design
 
-* System dependencies
+## **Technical Stack**
+- **Framework**: Ruby on Rails 7
+- **Database**: SQLite (development), PostgreSQL (production)
+- **Frontend**: Bootstrap 5, HTML5, CSS3
+- **APIs**: Google Maps (optional)
 
-* Configuration
+## **Setup Instructions**
 
-* Database creation
+### **Prerequisites**
+- Ruby 3.x
+- Rails 7.x
+- SQLite3
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+### **Installation**
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/beans.git
+   cd beans
