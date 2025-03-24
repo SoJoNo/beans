@@ -1,0 +1,22 @@
+<div class="container">
+  <h1><%= @coffee_shop.name %></h1>
+  <p><%= @coffee_shop.address %></p>
+  <p><%= @coffee_shop.city %>, <%= @coffee_shop.country %></p>
+
+  <h3>Details</h3>
+  <ul>
+    <li>Phone: <%= @coffee_shop.phone %></li>
+    <li>Average Rating: <%= @coffee_shop.average_rating %></li>
+  </ul>
+</div>
+
+<h3>User Reviews</h3>
+<% @coffee_shop.reviews.each do |review| %>
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">Rating: <%= review.rating %>/5</h5>
+      <p class="card-text"><%= review.content %></p>
+      <p class="text-muted">By <%= review.user.username %></p>
+    </div>
+  </div>
+<% end %>
