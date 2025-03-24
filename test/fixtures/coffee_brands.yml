@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  roaster: MyString
+  origin: MyString
+  roast_level: MyString
+
+two:
+  name: MyString
+  roaster: MyString
+  origin: MyString
+  roast_level: MyString

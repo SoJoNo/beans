@@ -14,32 +14,72 @@ require 'httparty'
 
 # Clear existing data
 CoffeeShop.destroy_all
+User.destroy_all
+Review.destroy_all
+CoffeeBrand.destroy_all
+CoffeeReview.destroy_all
+
+# Import Starbucks data with error handling
+skipped_rows = 0
+successful_rows = 0
 
 # Source 1: Kaggle CSV
-csv_text = File.read(Rails.root.join('db', 'directory.csv'))
-csv = CSV.parse(csv_text, headers: true)
-csv.each do |row|
-  CoffeeShop.create!(
-    name: row['Store Name'] || "Starbucks #{row['City']}",
-    city: row['City'],
-    country: row['Country'],
-    latitude: row['Latitude'],
-    longitude: row['Longitude'],
-    phone: row['Phone Number'],
-    rating: rand(3.0..5.0).round(1) # Add random ratings since dataset doesn't have them
+CSV.foreach(Rails.root.join('db', 'starbucks_locations.csv'), headers: true, encoding: 'bom|utf-8') do |row|
+  begin
+    # Skip if essential fields are missing or malformed
+    next unless row['City'].present? && row['Country'].present?
+
+    # Clean numeric fields
+    latitude = row['Latitude'].to_s.gsub(/[^0-9.-]/, '').to_f
+    longitude = row['Longitude'].to_s.gsub(/[^0-9.-]/, '').to_f
+
+    # Skip if coordinates are invalid
+    next unless (-90..90).cover?(latitude) && (-180..180).cover?(longitude)
+
+    CoffeeShop.create!(
+      name: row['Store Name'].presence || "Starbucks #{row['City']}",
+      city: row['City'],
+      country: row['Country'],
+      latitude: latitude,
+      longitude: longitude,
+      phone: row['Phone Number'].to_s.gsub(/[^0-9+]/, '').presence,
+      rating: rand(3.0..5.0).round(1)
+    )
+    successful_rows += 1
+  rescue => e
+    puts "Skipping row due to error: #{e.message}"
+    skipped_rows += 1
+    next
+  end
+end
+
+puts "\nImport complete!"
+puts "Successfully imported #{successful_rows} coffee shops"
+puts "Skipped #{skipped_rows} problematic rows"
+
+# Import coffee brands and reviews
+CSV.foreach(Rails.root.join('db', 'coffee_reviews.csv'), headers: true) do |row|
+  # Find or create the coffee brand
+  brand = CoffeeBrand.find_or_create_by!(
+    name: row['name'],
+    roaster: row['roaster'],
+    origin: row['origin'],
+    roast_level: row['roast_level']
+  )
+
+  # Create review (assign to random user)
+  random_user = User.order('RANDOM()').first || User.create!(username: Faker::Internet.username, email: Faker::Internet.email)
+
+  CoffeeReview.create!(
+    coffee_brand: brand,
+    rating: row['rating'],
+    review: row['review'],
+    user: random_user
   )
 end
 
-# Source 2: Yelp API (mock)
-CoffeeShop.first(5).each do |shop|
-  response = HTTParty.get("https://api.yelp.com/v3/businesses/#{shop.name.downcase.gsub(' ', '-')}",
-    headers: { "Authorization" => "Bearer YOUR_API_KEY" }
-  )
-  shop.update!(
-    hours: response['hours'],
-    price_range: response['price']
-  )
-end
+puts "Created #{CoffeeBrand.count} coffee brands"
+puts "Created #{CoffeeReview.count} professional reviews"
 
 # Source 3: Faker (Users + Reviews)
 50.times do

@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  coffee_brand: one
+  rating: 9.99
+  review: MyText
+  user: one
+
+two:
+  coffee_brand: two
+  rating: 9.99
+  review: MyText
+  user: two

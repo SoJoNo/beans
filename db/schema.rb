@@ -10,7 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_24_192928) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_24_200015) do
+  create_table "coffee_brands", force: :cascade do |t|
+    t.string "name"
+    t.string "roaster"
+    t.string "origin"
+    t.string "roast_level"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "coffee_reviews", force: :cascade do |t|
+    t.integer "coffee_brand_id", null: false
+    t.decimal "rating"
+    t.text "review"
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["coffee_brand_id"], name: "index_coffee_reviews_on_coffee_brand_id"
+    t.index ["user_id"], name: "index_coffee_reviews_on_user_id"
+  end
+
   create_table "coffee_shops", force: :cascade do |t|
     t.string "name"
     t.string "city"
@@ -41,6 +61,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_24_192928) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "coffee_reviews", "coffee_brands"
+  add_foreign_key "coffee_reviews", "users"
   add_foreign_key "reviews", "coffee_shops"
   add_foreign_key "reviews", "users"
 end
