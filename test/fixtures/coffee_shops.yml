@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  city: MyString
+  country: MyString
+  rating: 1.5
+  specialty_coffee: false
+
+two:
+  name: MyString
+  city: MyString
+  country: MyString
+  rating: 1.5
+  specialty_coffee: false
