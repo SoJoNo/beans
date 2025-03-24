@@ -1,57 +1,71 @@
-<%= form_with url: coffee_shops_path, method: :get do |f| %>
-  <div class="row">
-    <div class="col-md-6">
-      <%= f.text_field :search, class: "form-control" %>
-    </div>
-    <div class="col-md-4">
-      <%= f.select :country,
-          options_for_select(['All Countries'] + CoffeeShop.pluck(:country).uniq),
-          {}, class: "form-select" %>
-    </div>
-    <div class="col-md-2">
-      <%= f.submit "Filter", class: "btn btn-primary w-100" %>
-    </div>
-  </div>
-<% end %>
-
-<div class="row">
-  <% @coffee_shops.each do |shop| %>
-    <div class="col-md-4 mb-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title"><%= shop.name %></h5>
-          <p class="card-text">
-            <%= shop.city %>, <%= shop.country %>
-            <br>Rating: <%= shop.average_rating %>
-          </p>
-          <%= link_to "View Details", coffee_shop_path(shop), class: "btn btn-primary" %>
-        </div>
-      </div>
-    </div>
-  <% end %>
-</div>
-
 <div class="row">
   <div class="col-md-3">
-    <h4>Browse by Country</h4>
-    <ul class="list-group">
-      <% CoffeeShop.by_country.each do |country, count| %>
-        <li class="list-group-item">
-          <%= link_to "#{country} (#{count})", coffee_shops_path(country: country) %>
-        </li>
-      <% end %>
-    </ul>
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5>Filter Shops</h5>
+      </div>
+      <div class="card-body">
+        <%= form_with url: coffee_shops_path, method: :get do |f| %>
+          <div class="mb-3">
+            <%= f.label :country, "Country", class: "form-label" %>
+            <%= f.select :country,
+                options_for_select(['All Countries'] + CoffeeShop.pluck(:country).uniq.compact, params[:country]),
+                {}, class: "form-select" %>
+          </div>
+          <div class="mb-3">
+            <%= f.label :min_rating, "Minimum Rating", class: "form-label" %>
+            <%= f.select :min_rating,
+                options_for_select([['Any', 0], ['3+', 3], ['4+', 4], ['4.5+', 4.5]], params[:min_rating]),
+                {}, class: "form-select" %>
+          </div>
+          <%= f.submit "Apply Filters", class: "btn btn-primary w-100" %>
+        <% end %>
+      </div>
+    </div>
   </div>
+
   <div class="col-md-9">
-    <%# Main content %>
+    <h1 class="mb-4">Coffee Shops</h1>
+
+    <% if @coffee_shops.empty? %>
+      <div class="alert alert-info">
+        No coffee shops found matching your criteria.
+      </div>
+    <% else %>
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+        <% @coffee_shops.each do |shop| %>
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <%= shop.name %>
+                  <% if shop.average_rating > 4.2 %>
+                    <span class="badge bg-success ms-2">Top Rated</span>
+                  <% end %>
+                </h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                  <%= shop.city %>, <%= shop.country %>
+                </h6>
+                <p class="card-text">
+                  <span class="text-warning">
+                    <% shop.average_rating.floor.times do %>
+                      ★
+                    <% end %>
+                  </span>
+                  <small class="text-muted">
+                    (<%= shop.reviews.count %> reviews)
+                  </small>
+                </p>
+                <%= link_to "View Details", coffee_shop_path(shop), class: "btn btn-sm btn-outline-primary" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="mt-4">
+        <%= paginate @coffee_shops %>
+      </div>
+    <% end %>
   </div>
 </div>
-
-<%= form_with url: coffee_shops_path, method: :get do |f| %>
-  <div class="input-group mb-3">
-    <%= f.text_field :search, class: "form-control" %>
-    <%= f.submit "Search", class: "btn btn-primary" %>
-  </div>
-<% end %>
-
-<%= paginate @coffee_shops %>

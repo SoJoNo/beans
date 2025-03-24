@@ -1,12 +1,41 @@
-<div class="container">
-  <h1>About Beans</h1>
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow">
+      <div class="card-body">
+        <h1 class="card-title text-center mb-4">About Beans</h1>
 
-  <h3>Data Sources</h3>
-  <ul>
-    <li>Starbucks Location Dataset (Kaggle)</li>
-    <li>Coffee Reviews Dataset (Kaggle)</li>
-    <li>User-generated content</li>
-  </ul>
+        <div class="mb-5">
+          <h3>Our Mission</h3>
+          <p class="lead">
+            Connecting coffee lovers with the best coffee shops and products worldwide.
+          </p>
+        </div>
 
-  <%= image_tag "erd.png", alt: "Database Diagram", class: "img-fluid" if File.exist?('app/assets/images/erd.png') %>
+        <div class="mb-5">
+          <h3>Data Sources</h3>
+          <div class="list-group">
+            <div class="list-group-item">
+              <h5>Starbucks Location Dataset</h5>
+              <p>Comprehensive list of Starbucks stores worldwide from Kaggle</p>
+            </div>
+            <div class="list-group-item">
+              <h5>Coffee Reviews Dataset</h5>
+              <p>Professional ratings of coffee products from Kaggle</p>
+            </div>
+            <div class="list-group-item">
+              <h5>User Contributions</h5>
+              <p>Real reviews from our community members</p>
+            </div>
+          </div>
+        </div>
+
+        <% if File.exist?(Rails.root.join('app', 'assets', 'images', 'erd.png')) %>
+          <div class="text-center mt-4">
+            <h4>Database Structure</h4>
+            <%= image_tag "erd.png", class: "img-fluid border", alt: "Database diagram" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
 </div>

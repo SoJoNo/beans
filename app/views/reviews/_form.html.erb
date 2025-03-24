@@ -1,0 +1,13 @@
+<%= form_with model: [@coffee_shop, review] do |f| %>
+  <div class="mb-3">
+    <%= f.label :rating, class: "form-label" %>
+    <%= f.select :rating, options_for_select(1..5), {}, class: "form-select" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :content, "Your Review", class: "form-label" %>
+    <%= f.text_area :content, class: "form-control", rows: 3 %>
+  </div>
+
+  <%= f.submit "Submit Review", class: "btn btn-primary" %>
+<% end %>

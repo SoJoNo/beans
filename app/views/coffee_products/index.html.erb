@@ -1,0 +1,59 @@
+<div class="row">
+  <div class="col-md-3">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5>Filter Products</h5>
+      </div>
+      <div class="card-body">
+        <%= form_with url: coffee_products_path, method: :get do |f| %>
+          <div class="mb-3">
+            <%= f.label :roast_level, "Roast Level", class: "form-label" %>
+            <%= f.select :roast_level,
+                options_for_select(['All'] + CoffeeProduct.pluck(:roast_level).uniq, params[:roast_level]),
+                {}, class: "form-select" %>
+          </div>
+          <div class="mb-3">
+            <%= f.label :origin, "Origin", class: "form-label" %>
+            <%= f.select :origin,
+                options_for_select(['All'] + CoffeeProduct.pluck(:origin).uniq, params[:origin]),
+                {}, class: "form-select" %>
+          </div>
+          <%= f.submit "Apply Filters", class: "btn btn-primary w-100" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-9">
+    <h1 class="mb-4">Coffee Products</h1>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      <% @coffee_products.each do |product| %>
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title"><%= product.name %></h5>
+              <h6 class="card-subtitle mb-2 text-muted">
+                <%= product.roaster %>
+              </h6>
+              <p class="card-text">
+                <span class="badge bg-secondary"><%= product.roast_level %></span>
+                <span class="badge bg-info text-dark"><%= product.origin %></span>
+              </p>
+              <p class="card-text">
+                <strong>Avg Rating:</strong>
+                <%= number_with_precision(product.average_rating, precision: 1) %>/5
+                (<%= product.professional_reviews.count %> reviews)
+              </p>
+              <%= link_to "View Details", coffee_product_path(product), class: "btn btn-sm btn-outline-primary" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="mt-4">
+      <%= paginate @coffee_products %>
+    </div>
+  </div>
+</div>

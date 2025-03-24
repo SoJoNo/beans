@@ -1,25 +1,107 @@
-<div class="container">
-  <h1><%= @coffee_shop.name %></h1>
-  <p><%= @coffee_shop.address %></p>
-  <p><%= @coffee_shop.city %>, <%= @coffee_shop.country %></p>
+<div class="row">
+  <div class="col-md-8">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h1 class="card-title">
+          <%= @coffee_shop.name %>
+          <% if @coffee_shop.average_rating > 4 %>
+            <span class="badge bg-success">Highly Rated</span>
+          <% end %>
+        </h1>
 
-  <h3>Details</h3>
-  <ul>
-    <li>Phone: <%= @coffee_shop.phone %></li>
-    <li>Average Rating: <%= @coffee_shop.average_rating %></li>
-  </ul>
-</div>
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <p>
+              <strong>Location:</strong><br>
+              <%= @coffee_shop.address %><br>
+              <%= @coffee_shop.city %>, <%= @coffee_shop.country %>
+            </p>
 
-<h3>User Reviews</h3>
-<% @coffee_shop.reviews.each do |review| %>
-  <div class="card mb-3">
-    <div class="card-body">
-      <h5 class="card-title">Rating: <%= review.rating %>/5</h5>
-      <p class="card-text"><%= review.content %></p>
-      <p class="text-muted">By <%= review.user.username %></p>
+            <% if @coffee_shop.phone.present? %>
+              <p>
+                <strong>Phone:</strong><br>
+                <%= @coffee_shop.phone %>
+              </p>
+            <% end %>
+          </div>
+
+          <div class="col-md-6">
+            <div id="map" style="height: 200px; width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Customer Reviews</h3>
+      </div>
+      <div class="card-body">
+        <% if @coffee_shop.reviews.empty? %>
+          <p class="text-muted">No reviews yet. Be the first to review!</p>
+        <% else %>
+          <% @coffee_shop.reviews.each do |review| %>
+            <div class="mb-3 pb-3 border-bottom">
+              <div class="d-flex justify-content-between">
+                <h5>
+                  <% review.rating.times do %>★<% end %>
+                  <% (5 - review.rating).times do %>☆<% end %>
+                </h5>
+                <small class="text-muted">
+                  <%= time_ago_in_words(review.created_at) %> ago
+                </small>
+              </div>
+              <p><%= review.content %></p>
+              <p class="text-end">
+                <em>- <%= review.user.username %></em>
+              </p>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
     </div>
   </div>
-<% end %>
 
-<%# In view %>
-<%= paginate @coffee_shops %>
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h4>Add Your Review</h4>
+      </div>
+      <div class="card-body">
+        <%= render 'reviews/form', review: @review %>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h4>Nearby Shops</h4>
+        <ul class="list-group">
+          <% @nearby_shops.each do |shop| %>
+            <li class="list-group-item">
+              <%= link_to shop.name, coffee_shop_path(shop) %>
+              <small class="text-muted d-block">
+                <%= number_to_human(shop.distance_from(@coffee_shop)) %> km away
+              </small>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initMap() {
+    const location = { lat: <%= @coffee_shop.latitude %>, lng: <%= @coffee_shop.longitude %> };
+    const map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 15,
+      center: location,
+    });
+    new google.maps.Marker({
+      position: location,
+      map: map,
+      title: "<%= @coffee_shop.name %>"
+    });
+  }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&callback=initMap"></script>
