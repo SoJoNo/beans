@@ -12,15 +12,21 @@ require 'csv'
 require 'faker'
 require 'httparty'
 
+# Clear existing data
+CoffeeShop.destroy_all
+
 # Source 1: Kaggle CSV
-csv_data = CSV.read('db/coffee_shops.csv', headers: true)
-csv_data.each do |row|
+csv_text = File.read(Rails.root.join('db', 'starbucks_locations.csv'))
+csv = CSV.parse(csv_text, headers: true)
+csv.each do |row|
   CoffeeShop.create!(
-    name: row['name'],
-    city: row['city'],
-    country: row['country'],
-    rating: row['rating'].to_f,
-    specialty_coffee: row['specialty_coffee'] == 'Yes'
+    name: row['Store Name'] || "Starbucks #{row['City']}",
+    city: row['City'],
+    country: row['Country'],
+    latitude: row['Latitude'],
+    longitude: row['Longitude'],
+    phone: row['Phone Number'],
+    rating: rand(3.0..5.0).round(1) # Add random ratings since dataset doesn't have them
   )
 end
 
