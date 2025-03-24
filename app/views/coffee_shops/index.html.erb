@@ -1,3 +1,19 @@
+<%= form_with url: coffee_shops_path, method: :get do |f| %>
+  <div class="row">
+    <div class="col-md-6">
+      <%= f.text_field :search, class: "form-control" %>
+    </div>
+    <div class="col-md-4">
+      <%= f.select :country,
+          options_for_select(['All Countries'] + CoffeeShop.pluck(:country).uniq),
+          {}, class: "form-select" %>
+    </div>
+    <div class="col-md-2">
+      <%= f.submit "Filter", class: "btn btn-primary w-100" %>
+    </div>
+  </div>
+<% end %>
+
 <div class="row">
   <% @coffee_shops.each do |shop| %>
     <div class="col-md-4 mb-4">
@@ -30,5 +46,12 @@
     <%# Main content %>
   </div>
 </div>
+
+<%= form_with url: coffee_shops_path, method: :get do |f| %>
+  <div class="input-group mb-3">
+    <%= f.text_field :search, class: "form-control" %>
+    <%= f.submit "Search", class: "btn btn-primary" %>
+  </div>
+<% end %>
 
 <%= paginate @coffee_shops %>

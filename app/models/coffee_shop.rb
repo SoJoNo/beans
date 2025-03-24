@@ -6,4 +6,8 @@ class CoffeeShop < ApplicationRecord
   def self.by_country
     group(:country).count
   end
+
+  def self.search(query)
+    where("name LIKE ? OR city LIKE ?", "%#{query}%", "%#{query}%")
+  end
 end
