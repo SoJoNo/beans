@@ -1,2 +1,12 @@
-<h1>Pages#about</h1>
-<p>Find me in app/views/pages/about.html.erb</p>
+<div class="container">
+  <h1>About Beans</h1>
+
+  <h3>Data Sources</h3>
+  <ul>
+    <li>Starbucks Location Dataset (Kaggle)</li>
+    <li>Coffee Reviews Dataset (Kaggle)</li>
+    <li>User-generated content</li>
+  </ul>
+
+  <%= image_tag "erd.png", alt: "Database Diagram", class: "img-fluid" if File.exist?('app/assets/images/erd.png') %>
+</div>
