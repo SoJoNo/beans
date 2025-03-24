@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   end
 
   # Coffee products resources
-  resources :coffee_products, only: [:index, :show]
+  resources :coffee_brands, only: [:index, :show]
 
   # Root path
   root 'coffee_shops#index'

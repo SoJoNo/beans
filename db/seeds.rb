@@ -1,39 +1,34 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
-
 require 'csv'
 require 'faker'
 require 'httparty'
 
-# Clear existing data
-CoffeeShop.destroy_all
-User.destroy_all
+# Clear existing data in proper order to respect dependencies
 Review.destroy_all
-CoffeeBrand.destroy_all
 CoffeeReview.destroy_all
+CoffeeShop.destroy_all
+CoffeeBrand.destroy_all
+User.destroy_all
 
-# Import Starbucks data with error handling
+# 1. First create base users
+puts "Creating users..."
+50.times do
+  User.create!(
+    username: Faker::Internet.username,
+    email: Faker::Internet.email
+  )
+end
+
+# 2. Import Starbucks locations
+puts "Importing coffee shops..."
 skipped_rows = 0
 successful_rows = 0
 
-# Source 1: Kaggle CSV
 CSV.foreach(Rails.root.join('db', 'starbucks_locations.csv'), headers: true, encoding: 'bom|utf-8') do |row|
   begin
-    # Skip if essential fields are missing or malformed
     next unless row['City'].present? && row['Country'].present?
 
-    # Clean numeric fields
     latitude = row['Latitude'].to_s.gsub(/[^0-9.-]/, '').to_f
     longitude = row['Longitude'].to_s.gsub(/[^0-9.-]/, '').to_f
-
-    # Skip if coordinates are invalid
     next unless (-90..90).cover?(latitude) && (-180..180).cover?(longitude)
 
     CoffeeShop.create!(
@@ -53,47 +48,70 @@ CSV.foreach(Rails.root.join('db', 'starbucks_locations.csv'), headers: true, enc
   end
 end
 
-puts "\nImport complete!"
 puts "Successfully imported #{successful_rows} coffee shops"
 puts "Skipped #{skipped_rows} problematic rows"
 
-# Import coffee brands and reviews
-CSV.foreach(Rails.root.join('db', 'coffee_reviews.csv'), headers: true) do |row|
-  # Find or create the coffee brand
-  brand = CoffeeBrand.find_or_create_by!(
-    name: row['name'],
-    roaster: row['roaster'],
-    origin: row['origin'],
-    roast_level: row['roast_level']
-  )
+# 3. Import coffee brands and professional reviews
+if File.exist?(Rails.root.join('db', 'coffee_reviews.csv'))
+  puts "Importing coffee brands and reviews..."
+  brands_created = 0
+  reviews_created = 0
 
-  # Create review (assign to random user)
-  random_user = User.order('RANDOM()').first || User.create!(username: Faker::Internet.username, email: Faker::Internet.email)
+  CSV.foreach(Rails.root.join('db', 'coffee_reviews.csv'), headers: true) do |row|
+    begin
+      brand = CoffeeBrand.create!(
+        name: row['name'],
+        roaster: row['roaster'],
+        origin: row['origin'],
+        roast_level: row['roast_level']
+      )
+      brands_created += 1
 
-  CoffeeReview.create!(
-    coffee_brand: brand,
-    rating: row['rating'],
-    review: row['review'],
-    user: random_user
-  )
+      CoffeeReview.create!(
+        coffee_brand: brand,
+        rating: row['rating'],
+        review: row['review'],
+        user: User.all.sample
+      )
+      reviews_created += 1
+    rescue => e
+      puts "Skipping coffee review row: #{e.message}"
+    end
+  end
+
+  puts "Created #{brands_created} coffee brands"
+  puts "Created #{reviews_created} professional reviews"
+else
+  puts "Skipping coffee reviews import - file not found"
 end
 
-puts "Created #{CoffeeBrand.count} coffee brands"
-puts "Created #{CoffeeReview.count} professional reviews"
+# 4. Create user reviews for coffee shops
+puts "Creating user reviews..."
+reviews_created = 0
 
-# Source 3: Faker (Users + Reviews)
-50.times do
-  user = User.create!(
-    username: Faker::Internet.username,
-    email: Faker::Internet.email
-  )
-
+User.all.each do |user|
   CoffeeShop.all.sample(5).each do |shop|
-    Review.create!(
-      content: Faker::Restaurant.review,
-      rating: rand(1..5),
-      coffee_shop: shop,
-      user: user
-    )
+    begin
+      Review.create!(
+        content: Faker::Restaurant.review,
+        rating: rand(1..5),
+        coffee_shop: shop,
+        user: user
+      )
+      reviews_created += 1
+    rescue => e
+      puts "Failed to create review: #{e.message}"
+    end
   end
 end
+
+puts "Created #{reviews_created} user reviews"
+
+# Final summary
+puts "\nSeeding complete!"
+puts "Total records:"
+puts "- Users: #{User.count}"
+puts "- Coffee Shops: #{CoffeeShop.count}"
+puts "- Coffee Brands: #{CoffeeBrand.count}"
+puts "- Professional Reviews: #{CoffeeReview.count}"
+puts "- User Reviews: #{Review.count}"

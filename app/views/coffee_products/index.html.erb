@@ -5,17 +5,17 @@
         <h5>Filter Products</h5>
       </div>
       <div class="card-body">
-        <%= form_with url: coffee_products_path, method: :get do |f| %>
+        <%= form_with url: coffee_brands_path, method: :get do |f| %>
           <div class="mb-3">
             <%= f.label :roast_level, "Roast Level", class: "form-label" %>
             <%= f.select :roast_level,
-                options_for_select(['All'] + CoffeeProduct.pluck(:roast_level).uniq, params[:roast_level]),
+                options_for_select(['All'] + CoffeeBrand.pluck(:roast_level).uniq, params[:roast_level]),
                 {}, class: "form-select" %>
           </div>
           <div class="mb-3">
             <%= f.label :origin, "Origin", class: "form-label" %>
             <%= f.select :origin,
-                options_for_select(['All'] + CoffeeProduct.pluck(:origin).uniq, params[:origin]),
+                options_for_select(['All'] + CoffeeBrand.pluck(:origin).uniq, params[:origin]),
                 {}, class: "form-select" %>
           </div>
           <%= f.submit "Apply Filters", class: "btn btn-primary w-100" %>
@@ -53,7 +53,7 @@
     </div>
 
     <div class="mt-4">
-      <%= paginate @coffee_products %>
+      <%= paginate @coffee_brands %>
     </div>
   </div>
 </div>
