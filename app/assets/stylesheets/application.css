@@ -8,3 +8,34 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+/* Form styling */
+fieldset {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+legend {
+  width: auto;
+  padding: 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.star-rating {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.star-label {
+  cursor: pointer;
+  color: #ddd;
+  transition: color 0.2s;
+}
+
+.star-label:hover,
+input[type="radio"]:checked ~ .star-label {
+  color: #ffc107;
+}

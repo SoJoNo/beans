@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_24_200015) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_26_013638) do
   create_table "coffee_brands", force: :cascade do |t|
     t.string "name"
     t.string "roaster"
@@ -41,6 +41,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_24_200015) do
     t.float "latitude"
     t.float "longitude"
     t.string "phone"
+    t.string "address"
+    t.string "slug"
+    t.index ["slug"], name: "index_coffee_shops_on_slug", unique: true
   end
 
   create_table "reviews", force: :cascade do |t|
@@ -55,10 +58,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_24_200015) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "username"
+    t.string "username", null: false
     t.string "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
   add_foreign_key "coffee_reviews", "coffee_brands"

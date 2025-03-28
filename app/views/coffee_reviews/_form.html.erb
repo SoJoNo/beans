@@ -1,4 +1,4 @@
-<%= form_with(model: [@coffee_shop, @review], local: true) do |f| %>
+<%= form_with(model: [@coffee_brand, @coffee_review], local: true) do |f| %>
   <fieldset class="mb-3">
     <legend>Your Information</legend>
 
@@ -15,17 +15,17 @@
 
     <div class="mb-3">
       <%= f.label :rating, "Rating", class: "form-label" %>
-      <div class="star-rating">
+      <select name="coffee_review[rating]" class="form-select" required>
+        <option value="">Select rating</option>
         <% (1..5).each do |i| %>
-          <%= f.radio_button :rating, i, id: "review_rating_#{i}", required: true %>
-          <%= label_tag "review_rating_#{i}", "★", class: "star-label" %>
+          <option value="<%= i %>"><%= i %> ★</option>
         <% end %>
-      </div>
+      </select>
     </div>
 
     <div class="mb-3">
-      <%= f.label :content, "Review", class: "form-label" %>
-      <%= f.text_area :content, class: "form-control", rows: 4, required: true %>
+      <%= f.label :review, "Review", class: "form-label" %>
+      <%= f.text_area :review, class: "form-control", rows: 4, required: true %>
     </div>
   </fieldset>
 

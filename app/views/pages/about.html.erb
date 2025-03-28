@@ -29,10 +29,10 @@
           </div>
         </div>
 
-        <% if File.exist?(Rails.root.join('app', 'assets', 'images', 'erd.png')) %>
+        <% if File.exist?(Rails.root.join('app', 'assets', 'images', 'ERD.drawio.png')) %>
           <div class="text-center mt-4">
             <h4>Database Structure</h4>
-            <%= image_tag "erd.png", class: "img-fluid border", alt: "Database diagram" %>
+            <%= image_tag "ERD.drawio.png", class: "img-fluid border", alt: "Database diagram" %>
           </div>
         <% end %>
       </div>

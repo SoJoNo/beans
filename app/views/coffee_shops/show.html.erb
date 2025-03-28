@@ -4,19 +4,31 @@
       <div class="card-body">
         <h1 class="card-title">
           <%= @coffee_shop.name %>
-          <% if @coffee_shop.average_rating > 4 %>
+          <% if @coffee_shop.rating > 4 %>
             <span class="badge bg-success">Highly Rated</span>
           <% end %>
         </h1>
+
+        <div class="mb-3">
+          <h4>
+            Overall Rating:
+            <span class="text-warning">
+              <% @coffee_shop.rating.floor.times do %>★<% end %>
+              <% (5 - @coffee_shop.rating.floor).times do %>☆<% end %>
+            </span>
+            <small class="text-muted">
+              (<%= @coffee_shop.reviews.count %> reviews)
+            </small>
+          </h4>
+        </div>
 
         <div class="row mt-3">
           <div class="col-md-6">
             <p>
               <strong>Location:</strong><br>
-              <%= @coffee_shop.address %><br>
+              <%= @coffee_shop.address if @coffee_shop.address.present? %><br>
               <%= @coffee_shop.city %>, <%= @coffee_shop.country %>
             </p>
-
             <% if @coffee_shop.phone.present? %>
               <p>
                 <strong>Phone:</strong><br>
@@ -44,16 +56,24 @@
             <div class="mb-3 pb-3 border-bottom">
               <div class="d-flex justify-content-between">
                 <h5>
-                  <% review.rating.times do %>★<% end %>
-                  <% (5 - review.rating).times do %>☆<% end %>
+                  <% if review.rating %>
+                    <% review.rating.times do %>★<% end %>
+                    <% (5 - review.rating).times do %>☆<% end %>
+                  <% else %>
+                    No rating
+                  <% end %>
                 </h5>
                 <small class="text-muted">
-                  <%= time_ago_in_words(review.created_at) %> ago
+                  <% if review.created_at %>
+                    <%= time_ago_in_words(review.created_at) %> ago
+                  <% else %>
+                    Recently added
+                  <% end %>
                 </small>
               </div>
               <p><%= review.content %></p>
               <p class="text-end">
-                <em>- <%= review.user.username %></em>
+                <em>- <%= review.user&.username || 'Anonymous' %></em>
               </p>
             </div>
           <% end %>
@@ -72,21 +92,30 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-body">
-        <h4>Nearby Shops</h4>
-        <ul class="list-group">
-          <% @nearby_shops.each do |shop| %>
-            <li class="list-group-item">
-              <%= link_to shop.name, coffee_shop_path(shop) %>
-              <small class="text-muted d-block">
-                <%= number_to_human(shop.distance_from(@coffee_shop)) %> km away
-              </small>
-            </li>
-          <% end %>
-        </ul>
+    <% if @nearby_shops.any? %>
+      <div class="card mt-3">
+        <div class="card-body">
+          <h4>Nearby Shops</h4>
+          <ul class="list-group">
+            <% @nearby_shops.each do |shop| %>
+              <li class="list-group-item">
+                <%= link_to shop.name, coffee_shop_path(shop) %>
+                <small class="text-muted d-block">
+                  <%= number_with_precision(shop.distance, precision: 1) %> km away
+                </small>
+              </li>
+            <% end %>
+          </ul>
+        </div>
       </div>
-    </div>
+    <% else %>
+      <div class="card mt-3">
+        <div class="card-body">
+          <h4>Nearby Shops</h4>
+          <p class="text-muted">No nearby shops found</p>
+        </div>
+      </div>
+    <% end %>
   </div>
 </div>
 
@@ -104,4 +133,4 @@
     });
   }
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&callback=initMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= ENV.fetch('GOOGLE_MAPS_API_KEY', '') %>&callback=initMap&libraries=places"></script>

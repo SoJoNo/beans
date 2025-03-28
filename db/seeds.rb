@@ -33,6 +33,7 @@ CSV.foreach(Rails.root.join('db', 'starbucks_locations.csv'), headers: true, enc
 
     CoffeeShop.create!(
       name: row['Store Name'].presence || "Starbucks #{row['City']}",
+      address: row['Street Address'],
       city: row['City'],
       country: row['Country'],
       latitude: latitude,
@@ -51,6 +52,20 @@ end
 puts "Successfully imported #{successful_rows} coffee shops"
 puts "Skipped #{skipped_rows} problematic rows"
 
+# .5 Checks to see if all shops have at least one review, if not, generate one for it.
+puts "Ensuring each shop has at least 1 review..."
+CoffeeShop.find_each do |shop|
+  if shop.reviews.empty?
+    Review.create!(
+      content: Faker::Restaurant.review,
+      rating: rand(3..5),  # Start with positive ratings
+      coffee_shop: shop,
+      user: User.all.sample,
+      created_at: rand(1..30).days.ago
+    )
+  end
+end
+
 # 3. Import coffee brands and professional reviews
 if File.exist?(Rails.root.join('db', 'coffee_reviews.csv'))
   puts "Importing coffee brands and reviews..."
@@ -63,7 +78,7 @@ if File.exist?(Rails.root.join('db', 'coffee_reviews.csv'))
         name: row['name'],
         roaster: row['roaster'],
         origin: row['origin'],
-        roast_level: row['roast_level']
+        roast_level: row['roast']
       )
       brands_created += 1
 
@@ -95,6 +110,7 @@ User.all.each do |user|
       Review.create!(
         content: Faker::Restaurant.review,
         rating: rand(1..5),
+        created_at: Time.current - rand(1..30).days,
         coffee_shop: shop,
         user: user
       )
@@ -106,6 +122,21 @@ User.all.each do |user|
 end
 
 puts "Created #{reviews_created} user reviews"
+
+# 5. Adding random extra reviews
+puts "Adding supplemental reviews..."
+250.times do
+  Review.create!(
+    content: Faker::Restaurant.review,
+    rating: rand(1..5),
+    coffee_shop: CoffeeShop.all.sample,
+    user: User.all.sample,
+    created_at: rand(1..30).days.ago
+  )
+end
+
+puts "Updating coffee shop ratings..."
+CoffeeShop.find_each(&:update_rating_from_reviews)
 
 # Final summary
 puts "\nSeeding complete!"

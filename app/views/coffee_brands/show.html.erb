@@ -1,0 +1,98 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h1 class="card-title"><%= @coffee_brand.name %></h1>
+        <h3 class="card-subtitle mb-3 text-muted"><%= @coffee_brand.roaster %></h3>
+
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <p>
+              <strong>Origin:</strong> <%= @coffee_brand.origin %>
+            </p>
+            <p>
+              <strong>Roast Level:</strong>
+              <span class="badge bg-secondary"><%= @coffee_brand.roast_level %></span>
+            </p>
+          </div>
+          <div class="col-md-6">
+            <div class="text-center">
+              <h2 class="display-4 text-warning">
+                <%= @coffee_brand.display_rating %>/5
+              </h2>
+              <p class="text-muted">
+                <% stars = @coffee_brand.stars %>
+                <% stars.times do %>★<% end %>
+                <% (5 - stars).times do %>☆<% end %>
+                (<%= @coffee_brand.coffee_reviews.count %> reviews)
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Coffee Reviews</h3>
+      </div>
+      <div class="card-body">
+        <% if @coffee_brand.coffee_reviews.empty? %>
+          <p class="text-muted">No professional reviews available.</p>
+        <% else %>
+          <% @coffee_brand.coffee_reviews.each do |review| %>
+            <div class="mb-3 pb-3 border-bottom">
+              <div class="d-flex justify-content-between">
+                <h5>
+                  <% review.stars.times do %><span class="text-warning">★</span><% end %>
+                  <% (5 - review.stars).times do %><span class="text-secondary">☆</span><% end %>
+                  <small class="text-muted ms-2"><%= review.display_rating %>/5</small>
+                </h5>
+                <small class="text-muted">
+                  <%= time_ago_in_words(review.created_at) %> ago
+                </small>
+                <small class="text-muted">
+                  Reviewed by <%= review.user.username %>
+                </small>
+              </div>
+                <% if review.review.present? %>
+                  <p><%= review.review %></p>
+                <% else %>
+                  <p class="text-muted">No review text provided</p>
+                <% end %>
+              </div>
+            <p><%= review.content %></p>
+              <p class="text-end">
+                <em>- <%= review.user&.username || 'Anonymous' %></em>
+                <% if review.user.email.present? && review.user.email.exclude?('@anonymous.com') %>
+                  <small class="text-muted d-block">Verified Reviewer</small>
+                <% end %>
+              </p>
+          <% end %>
+        <% end %>
+
+      </div>
+    </div>
+  </div>
+
+<div class="card mt-3">
+  <div class="card-header">
+    <h4>Similar Products</h4>
+  </div>
+  <div class="card-body">
+    <% if @similar_products.any? %>
+      <ul class="list-group">
+        <% @similar_products.each do |product| %>
+          <li class="list-group-item">
+            <%= link_to product.name, coffee_brand_path(product) %>
+            <small class="text-muted d-block">
+              <%= product.roaster %>, <%= product.origin %>
+            </small>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-muted">No similar products found</p>
+    <% end %>
+  </div>
+</div>

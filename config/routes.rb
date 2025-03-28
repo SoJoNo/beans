@@ -11,5 +11,12 @@ Rails.application.routes.draw do
   resources :coffee_brands, only: [:index, :show]
 
   # Root path
-  root 'coffee_shops#index'
+  root 'pages#about'
+
+  # Search
+  get '/search', to: 'search#index', as: :search
+
+  resources :coffee_brands do
+    resources :coffee_reviews, only: [:create]
+  end
 end

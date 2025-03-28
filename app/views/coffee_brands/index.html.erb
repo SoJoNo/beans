@@ -25,10 +25,10 @@
   </div>
 
   <div class="col-md-9">
-    <h1 class="mb-4">Coffee Products</h1>
+    <h1 class="mb-4">Coffee Brands</h1>
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
-      <% @coffee_products.each do |product| %>
+      <% @coffee_brands.each do |product| %>
         <div class="col">
           <div class="card h-100">
             <div class="card-body">
@@ -42,14 +42,25 @@
               </p>
               <p class="card-text">
                 <strong>Avg Rating:</strong>
-                <%= number_with_precision(product.average_rating, precision: 1) %>/5
-                (<%= product.professional_reviews.count %> reviews)
+                <%= number_with_precision(product.display_rating, precision: 1) %>/5
+                (<%= product.coffee_reviews.count %> reviews)
               </p>
-              <%= link_to "View Details", coffee_product_path(product), class: "btn btn-sm btn-outline-primary" %>
+              <%= link_to "View Details", coffee_brand_path(product), class: "btn btn-sm btn-outline-primary" %>
             </div>
           </div>
         </div>
       <% end %>
+    </div>
+
+    <%# Temporary debug section - remove after testing %>
+    <div class="alert alert-info mb-4">
+      <h5>Debug Info:</h5>
+      <p>Current filters:</p>
+      <ul>
+        <li>Roast Level: <%= params[:roast_level] || 'None' %></li>
+        <li>Origin: <%= params[:origin] || 'None' %></li>
+      </ul>
+      <p>SQL query: <%= @coffee_brands.to_sql %></p>
     </div>
 
     <div class="mt-4">

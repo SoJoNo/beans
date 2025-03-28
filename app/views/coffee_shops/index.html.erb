@@ -39,7 +39,7 @@
               <div class="card-body">
                 <h5 class="card-title">
                   <%= shop.name %>
-                  <% if shop.average_rating > 4.2 %>
+                  <% if shop.rating > 4.2 %>
                     <span class="badge bg-success ms-2">Top Rated</span>
                   <% end %>
                 </h5>
@@ -48,7 +48,7 @@
                 </h6>
                 <p class="card-text">
                   <span class="text-warning">
-                    <% shop.average_rating.floor.times do %>
+                    <% shop.rating.floor.times do %>
                       ★
                     <% end %>
                   </span>
@@ -61,6 +61,17 @@
             </div>
           </div>
         <% end %>
+      </div>
+
+      <%# Temporary debug section - remove after testing %>
+      <div class="alert alert-info mb-4">
+        <h5>Debug Info:</h5>
+        <p>Current filters:</p>
+        <ul>
+          <li>Country: <%= params[:country] || 'None' %></li>
+          <li>Min Rating: <%= params[:min_rating] || 'None' %></li>
+        </ul>
+        <p>SQL query: <%= @coffee_shops.to_sql %></p>
       </div>
 
       <div class="mt-4">

@@ -1,0 +1,53 @@
+<div class="container mt-4">
+  <% if flash[:notice] %>
+    <div class="alert alert-info">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+
+  <h2>Search Results for "<%= @query %>"</h2>
+
+  <% if @coffee_shops.any? %>
+    <div class="mb-5">
+      <h4>Coffee Shops</h4>
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        <% @coffee_shops.each do |shop| %>
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title"><%= shop.name %></h5>
+                <p class="card-text">
+                  <%= shop.city %>, <%= shop.country %>
+                </p>
+                <%= link_to "View Details", coffee_shop_path(shop), class: "btn btn-sm btn-outline-primary" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <%= link_to "See all shops", coffee_shops_path(search: @query), class: "btn btn-link" %>
+    </div>
+  <% end %>
+
+  <% if @coffee_brands.any? %>
+    <div class="mb-5">
+      <h4>Coffee Brands</h4>
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        <% @coffee_brands.each do |brand| %>
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title"><%= brand.name %></h5>
+                <p class="card-text">
+                  <%= brand.roaster %>, <%= brand.origin %>
+                </p>
+                <%= link_to "View Details", coffee_brand_path(brand), class: "btn btn-sm btn-outline-primary" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <%= link_to "See all brands", coffee_brands_path(search: @query), class: "btn btn-link" %>
+    </div>
+  <% end %>
+</div>

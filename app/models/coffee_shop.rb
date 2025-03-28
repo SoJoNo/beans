@@ -25,13 +25,14 @@ class CoffeeShop < ApplicationRecord
 
   # Search functionality (improved)
   def self.search(query)
-    where("name ILIKE ? OR city ILIKE ? OR country ILIKE ?",
+    return all unless query.present?
+    where("LOWER(name) LIKE LOWER(?) OR LOWER(city) LIKE LOWER(?) OR LOWER(country) LIKE LOWER(?)",
           "%#{query}%", "%#{query}%", "%#{query}%")
   end
 
   # Instance methods
   def average_rating
-    reviews.average(:rating)&.round(1) || 0
+    reviews.average(:rating).to_f.round(1)
   end
 
   def review_count
@@ -39,23 +40,37 @@ class CoffeeShop < ApplicationRecord
   end
 
   def nearby_shops(radius_km: 5, limit: 5)
-    return CoffeeShop.none unless latitude && longitude
+    return [] unless latitude && longitude
 
-    CoffeeShop.where.not(id: id)
-              .select("*, (6371 * acos(cos(radians(#{latitude})) * cos(radians(latitude)) *
-                      cos(radians(longitude) - radians(#{longitude})) +
-                      sin(radians(#{latitude})) * sin(radians(latitude)))) AS distance")
-              .having("distance < ?", radius_km)
-              .order('distance')
-              .limit(limit)
+    CoffeeShop.find_by_sql([<<-SQL, latitude: latitude, longitude: longitude, radius: radius_km, limit: limit, current_id: id])
+      SELECT *,
+      (6371 * acos(
+        cos(radians(:latitude)) *
+        cos(radians(latitude)) *
+        cos(radians(longitude) - radians(:longitude)) +
+        sin(radians(:latitude)) *
+        sin(radians(latitude))
+      )) AS distance
+      FROM coffee_shops
+      WHERE id != :current_id
+      AND distance < :radius
+      ORDER BY distance
+      LIMIT :limit
+    SQL
   end
 
-  def update_average_rating
-    update_column(:rating, average_rating)
+  after_save :update_rating_from_reviews, if: :saved_change_to_rating?
+
+  def update_rating_from_reviews
+    new_rating = reviews.average(:rating).to_f.round(1)
+    update_column(:rating, new_rating)
   end
 
   # For display purposes
   def display_address
     [address, city, country].compact.join(', ')
   end
+
+  extend FriendlyId
+  friendly_id :name, use: :slugged
 end
